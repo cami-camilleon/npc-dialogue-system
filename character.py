@@ -16,8 +16,8 @@ class Character:
 
 
     # where is the character from
-    region = 'Unova'
-    town = 'Castelia City'
+    region = "Unova"
+    town = "Castelia City"
     address = 0
     # ^ all housings in a city will be indexed starting at 1 - 0 will be homeless
 
@@ -67,7 +67,8 @@ class Character:
 
     # WHO DOES THE CHARACTER KNOW
     # each value in the dict is an array of tuples
-    # each tuple will be a reference to a Character (player or other humann npc) and their friendship level
+    # each tuple will include a reference to a Character (player or other humann npc) and their friendship level as
+    # an int
     contacts = {
         # platonic relationships:
         "knows": [], 
@@ -78,42 +79,189 @@ class Character:
 
         # romantic relationships:
         "into": [],
-        "romantic": [],
-        "exromantic": [],
-        "serious": [],
-        "exserious": []
+        "romantic": [], 
+        "exromantic": [], 
+        "serious": [], 
+        "exserious": [] 
         # ^ loose analogue to marriage, as traditional marriage will not be forced
         # polyromance will also be supported
+        # NOTE: 'exromantic' and 'exserious' will only be lists of Characters, and not lists of tuples with a Character
+        # and int like the rest of them. this would cause issues with methods that parse through every key in the 
+        # contacts dict so REMEMBER TO SKIP THOSE TWO KEYS WHEN PARSING THROUGH CONTACTS!!!! 
+        # examples of this necessary key-skipping are in update_relationship and audit_contact 
     }
 
     # -------------------------------------------------------------------------------------------------------------
     # METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS -
 
     def __init__(self, name, town):
-        self.name = name
-        self.town = town
+        self.name = name.lower()
+        self.town = town.lower()
         pass
 
 
-    def audit_contact(self, name, town):
+    def update_relationship(self, character, update):
+        """Update the relationship value for a character.
+
+        :param character: npc/player class instance - its a Character instance (can be either npc or player, as this 
+        only deals with attributes inherited from parent Character class)
+        :param update: int - integer to update the relationship value with
+        :return: str - either "nochange" if the relationship status didnt change after the update, or str containing 
+        the new relationship status achieved after the update took place.
+        """
+
+        # thinking that default friendship value will be 10. you have to earn 15 points from default to upgrade
+        # status and you have to lose 10 points from default to downgrade the status.
+        # 
+        # also thinking that this will be the function only for traversing platonic relationships between 
+        # Characters. 
+        DEFAULT_FRIENDSHIP = 10
+
+        # thinking that -25 for the update parameter reliably at any friendship level will downgrade from bestfriends
+        # to friends or friends to knows.
+        # exactly -26 is simply downgrade to bestfriends from a romantic relationship
+        # anything between -27 and -50 is a downgrade straight to dislike 
+        # anything between -51 and -100 is a downgrade straight to hate
+        # on the other, more positive side of the coin:
+        # +25 exactly will upgrade the friendship level from knows to friends, or friends to bestfriends.
+        # anything between 26 and 50 will upgrade straight to "into"
+        # anything between 51 and 100 will upgrade stright to romantic 
+
+        for key in self.contacts.keys():
+            if key not in ["exromantic", "exserious"]:
+                for contact in self.contacts[key]:
+                    if contact[0] == character:
+                        # contact[0] is the Character, contact[1] is the relative friendship score
+
+                        # handle explicit upgrades/downgrades first:
+                        # explicit upgrade
+                        if update > 25:
+                            if update > 50:
+                                if update > 100:
+                                    # upgrade to serious!!! zomg!!
+                                    self.contacts[key].remove(contact)
+                                    self.contacts["serious"].append((character, DEFAULT_FRIENDSHIP))
+                                    return "serious"
+                                else:
+                                    # upgrade to romantic!! owo..
+                                    self.contacts[key].remove(contact)
+                                    self.contacts["romantic"].append((character, DEFAULT_FRIENDSHIP))
+                                    return "romantic"
+                            else:
+                                # upgrade to "into"... omg a crush...
+                                self.contacts[key].remove(contact)
+                                self.contacts["into"].append((character, DEFAULT_FRIENDSHIP))
+                                return "into"
+                            
+                        # explicit downgrade
+                        if update < -25:
+                            # friends and enemies are temporary but an ex is always your ex...
+                            if key == 'romantic':
+                                self.contacts["exromantic"].append(character)
+                            if key == 'serious':
+                                self.contacts["exserious"].append(character)
+                            # these values will never be removed from a character...
+
+                            if update < -50:
+                                # i fucking hate you
+                                self.contacts[key].remove(contact)
+                                self.contacts["hates"].append((character, DEFAULT_FRIENDSHIP))
+                                return "downgrade hates"
+                            elif update is not -26:
+                                # i dont like you...
+                                self.contacts[key].remove(contact)
+                                self.contacts["dislikes"].append((character, DEFAULT_FRIENDSHIP))
+                                return "downgrade dislikes"
+                            else: 
+                                # should be exactly -26
+                                self.contacts[key].remove(contact)
+                                self.contacts["bestfriends"].append((character, DEFAULT_FRIENDSHIP))
+                                return "downgrade bestfriends"
+
+                        # platonic relationship traversal:
+                        # upgrade
+                        if contact[1] + update > 25:
+                            # friendship value for platonic friendship UPGRADE achieved!
+                            if key == "knows":
+                                # if character is only acquainted with self, become friends
+                                self.contacts[key].remove(contact)
+                                self.contacts["friends"].append((character, DEFAULT_FRIENDSHIP))
+                                return "friends"
+                            elif key == "friends":
+                                # if character is only friends with self, become BEST friends!!
+                                self.contacts[key].remove(contact)
+                                self.contacts["bestfriends"].append((character, DEFAULT_FRIENDSHIP))
+                                return "bestfriends"
+                            elif key == "hates":
+                                # youre not THAT bad i guess...
+                                self.contacts[key].remove(contact)
+                                self.contacts["dislikes"].append((character, 5))
+                                return "dislikes"
+                            elif key == "dislikes":
+                                # ok youre fine I guess
+                                self.contacts[key].remove(contact)
+                                self.contacts["knows"].append((character, DEFAULT_FRIENDSHIP))
+                                return "knows"
+                            else:
+                                # if character is bestfriends or closer, we dont upgrade just by reaching a threshold...
+                                # we do keep it from being over 25 though.
+                                self.contacts[key].remove(contact)
+                                self.contacts[key].append((character, 25))
+                                return "nochange"
+                        
+                        # downgrade 
+                        elif contact[1] + update < 0:
+                            # friendship sucks ass. DOWNGRADE right neow.
+                            if key == "bestfriends":
+                                # downgrade to just friends, maybe with a lower than default friendship score
+                                self.contacts[key].remove(contact)
+                                self.contacts["friends"].append((character, 5))
+                                return "downgrade friends"
+                            elif key == "friends":
+                                # https://www.youtube.com/watch?v=ILMwhybrNCw
+                                self.contacts[key].remove(contact)
+                                self.contacts["knows"].append((character, 0))
+                                return "downgrade knows"
+                            else:
+                                # likewise, the final else case is just making sure the value doesnt go below zero.
+                                self.contacts[key].remove(contact)
+                                self.contacts[key].append((character, 0))
+                                return "nochange"
+
+                        else:
+                            # no traversal of relationship status at this time...
+                            self.contacts[key].remove(contact)
+                            self.contacts[key].append((character, contact[1] + update))
+                            return "nochange"
+
+        # didnt find in list, add to "knows" 
+        self.contacts["knows"].append((character, DEFAULT_FRIENDSHIP))
+        return "knows"
+
+
+    def audit_contact(self, character):
         """Take in a name and a town, both as strings, and return what relationship, if any that character has with the 
         character calling the method.  
 
-        :param name: str - name to return character relationship for.  
-        :param town: str - the town the character in question is from.  
-        :return: str - the highest level relationship that the character in question has with this the character calling 
-        the method. this WILL be a key in the Character.contacts dictionary, as a string, or "strangers" if the character in question isn't in this character's contacts.
+        :param character: npc/player class instance - its a Character instance (can be either npc or player, as this 
+        only deals with attributes inherited from parent Character class)
+        :return: tuple (str, int) - first value will be the highest level relationship that the character in question has 
+        with this this character this WILL be a key in the Character.contacts dictionary, as a string, or "strangers" if 
+        the character in question isn't in this character's contacts.
         """
-        result = ''
+
+        result = tuple()
 
         for key in self.contacts.keys():
-            for contact in self.contacts[key]:
-                if contact.name == name and contact.town == town:
-                    result = key
-                    break
+            if key not in ["exromantic", "exserious"]:
+                for contact in self.contacts[key]:
+                    if contact[0] == character:
+                        result = (key, contact[1])
+                        break
         
-        return result or "strangers"
+        return result or ("strangers", 0)
     
+
     def audit_interest(self, category, object):
         """Take in an interest category and an object of interest and return how this character feels, if anything, 
         about it.
@@ -129,7 +277,7 @@ class Character:
         result = ''
 
         for opinion in self.interests[category]:
-            if object in self.interests[category][opinion]:
+            if object.lower in self.interests[category][opinion]:
                 result = opinion
                 break
 
