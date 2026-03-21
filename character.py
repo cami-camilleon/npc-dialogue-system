@@ -117,13 +117,13 @@ class Character:
         # Characters. 
         DEFAULT_FRIENDSHIP = 10
 
-        # thinking that -25 for the update parameter reliably at any friendship level will downgrade from bestfriends
-        # to friends or friends to knows.
+        # -25 will 
         # exactly -26 is simply downgrade to bestfriends from a romantic relationship
         # anything between -27 and -50 is a downgrade straight to dislike 
         # anything between -51 and -100 is a downgrade straight to hate
         # on the other, more positive side of the coin:
-        # +25 exactly will upgrade the friendship level from knows to friends, or friends to bestfriends.
+        # +25 exactly will fill the current friendship level, another positive update will level up the relationship 
+        # from knows to friends, or friends to bestfriends.
         # anything between 26 and 50 will upgrade straight to "into"
         # anything between 51 and 100 will upgrade stright to romantic 
 
@@ -166,17 +166,18 @@ class Character:
                                 # i fucking hate you
                                 self.contacts[key].remove(contact)
                                 self.contacts["hates"].append((character, DEFAULT_FRIENDSHIP))
-                                return "downgrade hates"
-                            elif update is not -26:
+                                return "hates"
+                            elif update != -26:
+                                print(update)
                                 # i dont like you...
                                 self.contacts[key].remove(contact)
                                 self.contacts["dislikes"].append((character, DEFAULT_FRIENDSHIP))
-                                return "downgrade dislikes"
+                                return "dislikes"
                             else: 
                                 # should be exactly -26
                                 self.contacts[key].remove(contact)
                                 self.contacts["bestfriends"].append((character, DEFAULT_FRIENDSHIP))
-                                return "downgrade bestfriends"
+                                return "bestfriends"
 
                         # platonic relationship traversal:
                         # upgrade
@@ -216,12 +217,12 @@ class Character:
                                 # downgrade to just friends, maybe with a lower than default friendship score
                                 self.contacts[key].remove(contact)
                                 self.contacts["friends"].append((character, 5))
-                                return "downgrade friends"
+                                return "friends"
                             elif key == "friends":
                                 # https://www.youtube.com/watch?v=ILMwhybrNCw
                                 self.contacts[key].remove(contact)
-                                self.contacts["knows"].append((character, 0))
-                                return "downgrade knows"
+                                self.contacts["knows"].append((character, 5))
+                                return "knows"
                             else:
                                 # likewise, the final else case is just making sure the value doesnt go below zero.
                                 self.contacts[key].remove(contact)
