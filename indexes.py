@@ -1,6 +1,56 @@
-from item import Item
+# ----------------------------------------------------------------------------------------------------------------
+# NATURES - PERSONALITIES - NATURES - PERSONALITIES - NATURES - PERSONALITIES - NATURES - PERSONALITIES - NATURES 
 
-# REGIONS & TOWNS
+# each nature will have different responses and dialogue options
+natures = [    # id - followed by synonyms to narritavely guide writing
+    "adamant", #  0 - determined, resolute
+    "bashful", #  1 - sheepish, self-conscious, embarrassed
+    "bold",    #  2 - confident, self-assured
+    "brave",   #  3 - daring, adventurous
+    "calm",    #  4 - soothing, cool
+    "careful", #  5 - considerate, accurate, deliberate
+    "docile",  #  6 - agreeable, laid-back, non-confrontational
+    "gentle",  #  7 - compassionate, moderate
+    "hardy",   #  8 - fit, strong, solid
+    "hasty",   #  9 - careless, impulsive
+    "impish",  # 10 - devilish, playful
+    "jolly",   # 11 - light-hearted, festive, carefree
+    "lax",     # 12 - lazy, indifferent
+    "lonely",  # 13 - reclusive, self-sufficient
+    "mild",    # 14 - bland, mellow
+    "modest",  # 15 - humble, shy
+    "naive",   # 16 - innocent, sincere, simple 
+    "naughty", # 17 - ill-intended, morally-gray (different from impish, which is more playful and lighthearted)
+    "quiet",   # 18 - unassuming, soft, muted
+    "quirky",  # 19 - unique, peculiar, unusual
+    "rash",    # 20 - daring, reckless
+    "relaxed", # 21 - calm, easygoing
+    "sassy",   # 22 - sarcastic, brazen
+    "serious", # 23 - deliberate, literal, unamusedd
+    "timid"    # 24 - unsure, shy, pushover-able
+]
+
+# the personalities dict sorts the natures into the more broad personality categories
+# this will be useful for personality dependent animations, for example
+personalities = {
+    "haphazard": [0, 9, 10, 17, 20], 
+    "heroic": [2, 3, 8], 
+    "nonchalant": [12, 14, 21, 23], 
+    "shy": [1, 13, 15, 24], 
+    "silly": [11, 16, 19, 22], 
+    "soft": [4, 5, 6, 7, 18]
+}
+
+# print out each personaliy and which nature belongs to that personality 
+# for per in personalities.keys():
+#     list = []
+#     for num in personalities[per]:
+#         list.append(natures[num])
+#     print(f"{per}: {list}")
+
+# ----------------------------------------------------------------------------------------------------------------
+# REGIONS - TOWNS - REGIONS - TOWNS - REGIONS - TOWNS - REGIONS - TOWNS - REGIONS - TOWNS - REGIONS - TOWNS - REGI
+
 # this dictionary contains regions and towns in the pokemon world.
 # this will be how the ids of each region and town are derived, and provide a way to 
 # interface between the region/town ids that belong to characters and readable strings 
@@ -118,6 +168,8 @@ regiontowns = {
     ],
 }
 
-# ITEMS
+# ----------------------------------------------------------------------------------------------------------------
+# ITEMS - ITEMS - ITEMS - ITEMS - ITEMS - ITEMS - ITEMS - ITEMS - ITEMS - ITEMS - ITEMS - ITEMS - ITEMS - ITEMS - 
+
 # idk what items are gonna look like yet tbh 
 # im thinking itll probably just be a list of item guys? probably ...

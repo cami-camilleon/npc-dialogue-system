@@ -1,3 +1,5 @@
+from indexes import natures, personalities
+
 from player import Player
 from npc import NPC
 
@@ -5,7 +7,8 @@ camille = Player("Camille", "Castelia City")
 pam = NPC(1, "pam", "Nimbasa City")
 ash = NPC(2, "ash", "pallet town")
 
-camille.write_char_to_file()
+pam.update_relationship(camille, 3)
+print(pam.talk_to_player(camille))
 
 # example of updating friendship to minimum without downgrading relationship (FINAL STRAW...)
 # camille.update_relationship(pam, 0 - camille.audit_contact(pam)[1])

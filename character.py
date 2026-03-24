@@ -3,28 +3,36 @@ from indexes import regiontowns
 class Character:
     # this will be the base class that both the player character and all NPCs inherit from
 
-    # -------------------------------------------------------------------------------------------------------------
-    # ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRI
+    # ------------------------------------------------------------------------------------------------------------
+    # ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTR
 
     # player's Character.id will be 0, any id above 0 will be an NPC.
     id = -1
 
-    # who is the character
+    # WHO IS THE CHARACTER
     name = "Jane"
     nickname = "Janie"
-    gender = ["she", "her", "hers"]
+    gender = ["they", "them", "their"]
+    # ^ FUCKING PRONOUNS!!! 
     # subject, object, possessive, reflexive pronouns
     # masculine default:   he,  him,   his,  himself
     #  feminine default:  she,  her,  hers,  herself
     #   neutral default: they, them, their, themself
     # inanimate default:   it,   it,   its,   itself
+    # in the case of all of the default pronoun sets, the reflexive form is just the possessive form + self 
+    # choosing custom neopronouns will be an option, and an option to fill in a custom reflexive form will also 
+    #   be supported, to provide support for the case that a neopronoun set doesnt follow the default pronoun 
+    #   grammar pattern. 
+    nature = 0
+    # ^ references the natures list in indexes.py
 
 
-    # where is the character from
-    region = "Unova"
-    town = "Castelia City"
+    # WHERE IS THE CHARACTER FROM
+    region = 0
+    town = 0
+    # ^ references the regiontowns dict in indexes.py
     address = 0
-    # ^ all housings in a city will be indexed starting at 1 - 0 will be homeless
+    # ^ all housings in a city will be indexed starting at 1; 0 will be homeless
 
 
     # WHAT DOES THE CHARACTER LIKE/LOVE/DISLIKE/HATE
@@ -96,8 +104,8 @@ class Character:
         # examples of this necessary key-skipping are in update_relationship and audit_contact 
     }
 
-    # -------------------------------------------------------------------------------------------------------------
-    # METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS -
+    # ------------------------------------------------------------------------------------------------------------
+    # METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS 
 
     def __init__(self, name, town):
         self.name = name.lower()

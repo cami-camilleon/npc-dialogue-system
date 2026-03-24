@@ -1,29 +1,4 @@
-from character import Character
-
-class NPC(Character):
-    # this is the class specifically for human NPCs, inheriting from the parent Character class.
-
-    # ------------------------------------------------------------------------------------------------------------
-    # ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTR
-
-    # ------------------------------------------------------------------------------------------------------------
-    # METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS 
-
-    def __init__(self, id, name, town):
-        if id > 0:
-            self.id = id
-        Character.__init__(self, name, town)
-
-    def talk_to_player(self, player):
-        # this func will be a doozy...
-
-        response = ""
-
-        if self.audit_contact(player)[0] == "strangers":
-            # npc doesnt know the player yet! 
-            response = "I don't know you."
-            # ^ debug: get rid of soon
-            match self.nature:
+match self.nature:
                 case 0: # adamant - determined, resolute
                     pass
                 case 1: # bashful - sheepish, self-conscious, embarrassed
@@ -74,11 +49,3 @@ class NPC(Character):
                     pass
                 case 24: # timid - unsure, shy, pushover-able
                     pass
-                
-        else:
-            # npc DOES know the player :3
-            response = f"Hey, I know you! We are {self.audit_contact(player)[0]}."
-
-        return response
-
-    
