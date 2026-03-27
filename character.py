@@ -1,55 +1,17 @@
 from indexes import charlist, regiontowns, natures, personalities
 
 class Character:
-    # this will be the base class that both the player character and all NPCs inherit from
-
     # ------------------------------------------------------------------------------------------------------------
-    # ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTRIBUTES - ATTR
+    # INITIALIZER - INITIALIZER - INITIALIZER - INITIALIZER - INITIALIZER - INITIALIZER - INITIALIZER - INITIALIZE 
 
-    # player's Character.id will be 0, any id above 0 will be an NPC.
-    id = -1
-
-    # WHO IS THE CHARACTER
-    name = "Jane"
-    nickname = "Janie"
-    pronouns = ["they", "them", "their", "theirs", "are", ""]
-    # ^ FUCKING PRONOUNS!!! 
-    # "They are* funny!", "Go talk to them", "Their name is _", "That is theirs"
-    # masculine default:   he,  him,   his,    his
-    #  feminine default:  she,  her,   her,   hers
-    #   neutral default: they, them, their, theirs
-    # inanimate default:   it,   it,   its,    its (grammar changes if this is the case...)
-    # *"is" changes to "are" when using gender neutral pronouns
-    # the usual case would look like this:
-    # "He is funny!", "She is sad", "It is hungry", "They are different!"
-    # ** special grammar: 
-    #   * the last entry in the list is either "s" or "": this value will get put after verbs that follow pronouns
-    #   example: She lives over there. (an "s" is put after "lives"); They live over here. ("" is put after "live")
-    #   * the second to last entry in the pronoun list is "are" or "is"
-    #   ^^^^ more code and rules will be added as more grammatical variances need to be implimented...
-
-    natureid = 0
-    # ^ references the natures list in indexes.py
-
-
-    # WHERE IS THE CHARACTER FROM
-    regionid = 0
-    townid = 0
-    # ^ references the regiontowns dict in indexes.py
-    addressid = 0
-    # ^ all housings in a city will be indexed starting at 1; 0 will be homeless
-
-
-
-    # ------------------------------------------------------------------------------------------------------------
-    # METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS - METHODS 
-
-    def __init__(self, id=0):
+    def __init__(self, id):
         # constructor will fill in data for self from "characters.txt" **UNLESS THEY HAVE TO DO WITH OTHER 
         # CHARACTERS (chiefly the contacts dictionary)
 
-        # WHAT DOES THE CHARACTER LIKE/LOVE/DISLIKE/HATE
+        # CHARACTER CLASS DICTIONARY STRUCTURES:
+        # character interests
         # categories: items, pokemon, cities, colors, flavors/scents
+        # perhaps more to come; note: if more are added make sure to update ALL logic in ALL places!!
         self.interests = {
             "items": {
                 "hates": [],
@@ -82,8 +44,8 @@ class Character:
                 "loves": []
             }
         }
-        # in the case of npcs, this is of course vital information to have in order to control the reaction of said npc 
-        # when talking about or recieving something they hate or love.
+        # ^^^ in the case of npcs, this is of course vital information to have in order to control the reaction of said 
+        # npc when talking about or recieving something they hate or love.
         # knowing what the player character does or doesnt like will come in handy when influencing what npcs talk to you
         # about or give you as a gift. perhaps the game can keep track of things that you buy as items that you like that 
         # npcs who know and like you should be inclined to gift you, and maybe you can have a wishlist of things you want 
@@ -93,7 +55,7 @@ class Character:
 
         # WHO DOES THE CHARACTER KNOW
         # each value in the dict is an array of tuples
-        # each tuple will include a reference to a Character (player or other humann npc) and their friendship level as
+        # each tuple will include an id to a Character (player or other humann npc) and their friendship level as
         # an int
         self.contacts = {
             # platonic relationships:
@@ -117,6 +79,7 @@ class Character:
             # examples of this necessary key-skipping are in update_relationship and audit_contact 
         }
 
+        # begin read from file:
         f = open("characters.txt").read().split("\n")
         
         character = ""
@@ -124,11 +87,11 @@ class Character:
             if item.startswith(str(id)):
                 character = item
                 break
-
+        # if character remains empty then just dont do jack shit
         if character == "":
             return
         
-        # start making the character
+        # start making the character:
         self.id = id
 
         character = character.split(' ')
@@ -136,6 +99,20 @@ class Character:
         self.name = character[1]
         self.nickname = character[2].replace(r"\_", " ")
         self.pronouns = character[3].split(",")
+        # ^ FUCKING PRONOUNS!!! 
+        # "They are* funny!", "Go talk to them", "Their name is _", "That is theirs"
+        # masculine default:   he,  him,   his,    his
+        #  feminine default:  she,  her,   her,   hers
+        #   neutral default: they, them, their, theirs
+        # inanimate default:   it,   it,   its,    its (grammar changes if this is the case...)
+        # *NOTE: "is" changes to "are" when using gender neutral pronouns
+        # the usual case would look like this:
+        # "He is funny!", "She is sad", "It is hungry", "They are different!"
+        # ** special grammar: 
+        #   * the last entry in the list is either "s" or "": this value will get put after verbs that follow pronouns
+        #   example: She lives over there. (an "s" is put after "lives"); They live over here. ("" is put after "live")
+        #   * the second to last entry in the pronoun list is "are" or "is"
+        #   ^^^^ more code and rules will be added as more grammatical variances need to be implimented...
         self.natureid = int(character[4])
 
         self.regionid = int(character[5])
@@ -165,11 +142,18 @@ class Character:
                 for i, category in enumerate(contacts.split(".")):
                     for entry in category.split(","):
                         if entry:
-                            #print(f"Before Append - {charlist[int(char[0])].name} {[*charlist[0].contacts.keys()][i]} contacts list: {charlist[int(char[0])].contacts[[*charlist[0].contacts.keys()][i]]}")
-                            self.contacts[[*self.contacts.keys()][i]].append((int(entry.split("-")[0]), int(entry.split("-")[1])))
-                            #print(f"AFTER Append - {charlist[int(char[0])].name} {[*charlist[0].contacts.keys()][i]} contacts list: {charlist[int(char[0])].contacts[[*charlist[0].contacts.keys()][i]]}\n")
-        
+                            if [*self.contacts.keys()][i] in ["exromantic", "exserious"]:
+                                print("special case detected!")
+                                # if parsing data into exromantic or exserious, only append the id- no need for friendship value
+                                self.contacts[[*self.contacts.keys()][i]].append(int(entry.split("-")[0]))
+                            else:
+                                self.contacts[[*self.contacts.keys()][i]].append((int(entry.split("-")[0]), int(entry.split("-")[1])))
+
+        # append to charlist!!        
         charlist.append(self)
+
+    # ------------------------------------------------------------------------------------------------------------
+    # OTHER METHODS - OTHER METHODS - OTHER METHODS - OTHER METHODS - OTHER METHODS - OTHER METHODS - OTHER METHOD 
 
     def update_relationship(self, character, update):
         """Update the relationship value for a character.

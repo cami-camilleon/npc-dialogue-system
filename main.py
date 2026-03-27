@@ -1,19 +1,18 @@
 # imported classes
 from player import Player
 from npc import NPC
-
 # imported functions
 
 # imported datastructures, variables
 from indexes import charlist
 
 # create character list from characters.txt
-def characterlist_read():
+def charlist_read():
     f = open("characters.txt").read().split("\n")
     for i in range(0, len(f)):
         match i:
             case 0:
-                Player()
+                Player(i)
             case _:
                 NPC(i)
 
@@ -25,7 +24,7 @@ def charlist_write():
         f.write("testing!!!")
     pass
 
-characterlist_read()
+charlist_read()
 
 # example of writing text using character data:  
 def charlist_debug():  
@@ -35,7 +34,11 @@ def charlist_debug():
         print(f"{char.pronouns[0].title()} {char.pronouns[len(char.pronouns) - 2]} house number {char.address()}")
         print(f"{char.pronouns[0].title()} can be pretty {char.personality()}, as {char.pronouns[2]} Nature is {char.nature()}.\n")
 
-        print(f"Here is who {char.name.title()} knows!:")
+        for item in [*char.contacts.values()]:
+            if item:
+                print(f"Here is who {char.name.title()} knows!:")
+                break
+                
         for key in char.contacts.keys():
             if char.contacts[key]:
                 for entry in char.contacts[key]:
@@ -59,10 +62,10 @@ def charlist_debug():
                         case "serious":
                             print(f"- {char.name.title()} is seriously romantic with {charlist[entry[0]].name.title()}!!")
                         case "exromantic":
-                            print(f"- {char.name.title()} used to be romantic with {charlist[entry[0]].name.title()}!")
+                            print(f"- {char.name.title()} used to be romantic with {charlist[entry].name.title()}!")
                         case "exserious":
-                            print(f"- {char.name.title()} used to be seriously romantic with {charlist[entry[0]].name.title()}!!")
+                            print(f"- {char.name.title()} used to be seriously romantic with {charlist[entry].name.title()}!!")
         print("\n")
-                        
-charlist_debug()
+# charlist_debug()
 
+print(charlist)
