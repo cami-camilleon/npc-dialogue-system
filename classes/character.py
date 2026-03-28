@@ -1,4 +1,4 @@
-from data.indexes import charlist, regiontowns, natures, personalities
+from data.data import regiontowns, natures, personalities
 
 class Character:
     # ------------------------------------------------------------------------------------------------------------
@@ -80,10 +80,11 @@ class Character:
         }
 
         # begin read from file:
-        f = open("data/characters.txt").read().split("\n")
+        charfile = open("data/characters.txt")
+        charfile_list = charfile.read().split("\n")
         
         character = ""
-        for item in f:
+        for item in charfile_list:
             if item.startswith(str(id)):
                 character = item
                 break
@@ -113,11 +114,11 @@ class Character:
         #   example: She lives over there. (an "s" is put after "lives"); They live over here. ("" is put after "live")
         #   * the second to last entry in the pronoun list is "are" or "is"
         #   ^^^^ more code and rules will be added as more grammatical variances need to be implimented...
-        self.natureid = int(character[4])
+        self.nature = natures[int(character[4])]
 
-        self.regionid = int(character[5])
-        self.townid = int(character[6])
-        self.addressid = int(character[7])
+        self.region = [*regiontowns.keys()][int(character[5])]
+        self.town = regiontowns[self.region][int(character[6])]
+        self.address = int(character[7])
         
         # populate interests dictionary
         # DEBUG NOTE: all categories are not yet indexed, once they are indexed and begin being populated with items,
@@ -136,21 +137,20 @@ class Character:
         # now populate contacts dictionary
         # we will be putting tuples containing (Character.id, friendscore) and then when the contact needs to be 
         # referenced we will use the integer id to lookup the character in the table 
-        for char in open("data/characters.txt").read().split("\n"):
+        for char in charfile_list:
             if int(char[0]) == self.id:
                 contacts = char.split(' ')[13]
                 for i, category in enumerate(contacts.split(".")):
                     for entry in category.split(","):
                         if entry:
                             if [*self.contacts.keys()][i] in ["exromantic", "exserious"]:
-                                print("special case detected!")
                                 # if parsing data into exromantic or exserious, only append the id- no need for friendship value
                                 self.contacts[[*self.contacts.keys()][i]].append(int(entry.split("-")[0]))
                             else:
                                 self.contacts[[*self.contacts.keys()][i]].append((int(entry.split("-")[0]), int(entry.split("-")[1])))
 
-        # append to charlist!!        
-        charlist.append(self)
+        charfile.close()
+
 
     # ------------------------------------------------------------------------------------------------------------
     # OTHER METHODS - OTHER METHODS - OTHER METHODS - OTHER METHODS - OTHER METHODS - OTHER METHODS - OTHER METHOD 
@@ -345,41 +345,19 @@ class Character:
         return result or "indifferent"
     
     # here's some methods that return the text equivalent to things that are stored in the character as ids
-
-    def nature(self):
-        return natures[self.natureid] 
     
     def personality(self):
-        for cat in personalities.keys():
-            if self.natureid in personalities[cat]:
-                return cat
-        pass
+        for category in personalities.keys():
+            if self.nature in personalities[category]:
+                return category
 
-    def region(self):
-        return [*regiontowns.keys()][self.regionid]
+    def townshort(self):
+        townsplit = self.town.split(' ')
+        repair = []
 
-    def town(self, form):
-        """
-        :param form: str - either "long" or "short", "long" meaning the town is returned with the 
-        trailing "-town" or "-city" and "short" meaning without.
-        """
-        town = regiontowns[self.region()][self.townid]
-        match form:
-            case "short":
-                townsplit = town.split(' ')
-                repair = []
+        for word in townsplit:
+            if word not in ["town", "city"]:
+                repair.append(word)
+            
+        return " ".join(repair)
 
-                for word in townsplit:
-                    if word not in ["town", "city"]:
-                        repair.append(word)
-                
-                return " ".join(repair)
-            case "long":
-                return town
-        
-        pass
-
-    def address(self):
-        return self.addressid
-
-    

@@ -1,3 +1,4 @@
-# Thanks for reading me!!
+# THERE ARE NOW SPOILERS FOR POKÉMON GODOT IN THIS REPOSITORY
 
-therre will be info here soon trust! 
+what the freak is pokemon godot...  
+i will tell u!!
